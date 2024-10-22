@@ -74,8 +74,10 @@ class SpotifyAPIService:
                 id=user_data.get("id"),
                 username=user_data.get("display_name"),
                 email=user_data.get("email"),
-                # country=user_data.get("country"), # Can add later, talk with user data team
-                # product=user_data.get("product")
+                country=user_data.get("country"),
+                profile_image=user_data.get("images")[0].get("url") if user_data.get("images") else None,
+                created_at=None,
+                last_login=None
             )
 
             return user

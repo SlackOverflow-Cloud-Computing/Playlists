@@ -7,14 +7,14 @@ from datetime import datetime
 
 
 class User(BaseModel):
-    id: Optional[str] = None
-    username: Optional[str] = None
-    email: Optional[str] = None
-    created_at: Optional[datetime] = None  # Date format as string
-    password: Optional[str] = None
-    # phone_number: Optional[str] = None
-    # last_login: Optional[str] = None  # Date format as string
-    # session_token: Optional[str] = None
-    # ip_address: Optional[str] = None
-    # device_info: Optional[str] = None
-    # updated_at: Optional[str] = None  # Date format as string
+
+    # Spotify based information
+    id: str                                 # Spotify ID
+    username: str                           # Spotify username (display_name)
+    email: str                              # Spotify email
+    profile_image: Optional[str] = None     # Spotify profile image URL
+    country: Optional[str] = None           # Spotify country
+
+    # Our own information - to be filled in by the composite service
+    created_at: Optional[datetime]          # Date format as string
+    last_login: Optional[datetime]          # Date format as string
