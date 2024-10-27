@@ -1,12 +1,11 @@
-from dotenv import load_dotenv
-import os
-
 from framework.services.service_factory import BaseServiceFactory
 from app.services.spotify_api import SpotifyAPIService
+import dotenv, os
 
+dotenv.load_dotenv()
+client_id = os.getenv('SPOTIFY_CLIENT_ID') 
+client_secret = os.getenv('SPOTIFY_CLIENT_SECRET')
 
-# Load environment variables from .env file
-load_dotenv()
 
 class ServiceFactory(BaseServiceFactory):
 
@@ -18,8 +17,8 @@ class ServiceFactory(BaseServiceFactory):
 
         match service_name:
             case "SpotifyAPIService":
-                client_id = os.getenv("SPOTIFY_CLIENT_ID")
-                client_secret = os.getenv("SPOTIFY_CLIENT_SECRET")
+                client_id = client_id
+                client_secret = client_secret
                 result = SpotifyAPIService(client_id, client_secret)
 
             case _:
