@@ -17,8 +17,6 @@ class ServiceFactory(BaseServiceFactory):
 
         match service_name:
             case "SpotifyAPIService":
-                client_id = client_id
-                client_secret = client_secret
                 result = SpotifyAPIService(client_id, client_secret)
 
             case _:
