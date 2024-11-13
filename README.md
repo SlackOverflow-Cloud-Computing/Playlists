@@ -1,5 +1,5 @@
-# Spotify-Adapter
-Service for interfacing with the Spotify API
+# Playlist Service
+Service for managing anything to do with playlists
 
 
 ## Usage
@@ -7,13 +7,10 @@ Service for interfacing with the Spotify API
 You need to configure a .env file with your Spotify App information like this:
 
 ```
-SPOTIFY_CLIENT_ID=your_client_id
-SPOTIFY_CLIENT_SECRET=your_client_secret
-
 ```
 
-For the people on our team, you can copy this information at https://developer.spotify.com/dashboard
+Note: This services works with S3 for blob storage.
 
-`uvicorn app.main:app --reload --port 8080`
+`uvicorn app.main:app --reload --port 8099`
 
-This services currently runs on `http://127.0.0.1:8080` by default for testing.
+This services currently runs on `http://127.0.0.1:8099` by default for testing.

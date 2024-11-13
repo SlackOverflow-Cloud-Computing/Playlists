@@ -1,9 +1,9 @@
 from framework.services.service_factory import BaseServiceFactory
-from app.services.spotify_api import SpotifyAPIService
+from app.services.playlist import PlaylistService
 import dotenv, os
 
 dotenv.load_dotenv()
-client_id = os.getenv('SPOTIFY_CLIENT_ID') 
+client_id = os.getenv('SPOTIFY_CLIENT_ID')
 client_secret = os.getenv('SPOTIFY_CLIENT_SECRET')
 
 
@@ -16,8 +16,8 @@ class ServiceFactory(BaseServiceFactory):
     def get_service(cls, service_name):
 
         match service_name:
-            case "SpotifyAPIService":
-                result = SpotifyAPIService(client_id, client_secret)
+            case "Playlist":
+                result = PlaylistService(client_id, client_secret)
 
             case _:
                 result = None
