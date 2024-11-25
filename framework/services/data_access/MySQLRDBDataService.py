@@ -5,6 +5,13 @@ from .BaseDataService import DataDataService
 from datetime import datetime
 
 
+import dotenv, os
+
+dotenv.load_dotenv()
+info_collection = os.getenv('DB_INFO_COLLECTION')
+content_collection = os.getenv('DB_CONTENT_COLLECTION')
+
+
 class MySQLRDBDataService(DataDataService):
     """
     A generic data service for MySQL databases. The class implement common
@@ -89,9 +96,9 @@ class MySQLRDBDataService(DataDataService):
 
         try:
             current_time = datetime.now()
-            if collection_name == "info_collection" and "created_at" not in data:
+            if collection_name == info_collection and data["created_at"] is None:
                 data["created_at"] = current_time
-            if collection_name == "content_collection" and "added_at" not in data:
+            if collection_name == content_collection and data["added_at"] is None:
                 data["added_at"] = current_time
 
             sql_statement = f"INSERT INTO {database_name}.{collection_name} " + \
@@ -106,43 +113,6 @@ class MySQLRDBDataService(DataDataService):
                 connection.close()
         return success
 
-    def update_data_object(self,
-                           database_name: str,
-                           collection_name: str,
-                           key_field: str,
-                           key_value: str,
-                           data: dict):
-        connection = None
-        success = False
-
-        try:
-            current_time = datetime.now()
-            if collection_name == "info_collection" and "created_at" not in data:
-                data["created_at"] = current_time
-            if collection_name == "content_collection" and "added_at" not in data:
-                data["added_at"] = current_time
-
-            set_clause = ", ".join([f"{key}=%s" for key in data.keys()])
-            sql_statement = f"UPDATE {database_name}.{collection_name} SET {set_clause} WHERE {key_field}=%s"
-
-            connection = self._get_connection()
-            cursor = connection.cursor()
-            cursor.execute(sql_statement, list(data.values()) + [key_value])
-            connection.commit()
-
-            result = cursor.rowcount
-            print(f"Updated {result} row(s).")
-            if cursor.rowcount > 0:
-                success = True
-        except Exception as e:
-            print(f"Error updating data object: {e}")
-            if connection:
-                connection.rollback()
-        finally:
-            if connection:
-                connection.close()
-
-        return success
 
 
 

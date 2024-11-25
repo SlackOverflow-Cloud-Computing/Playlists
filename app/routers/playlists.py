@@ -33,7 +33,14 @@ async def get_playlists(user_id: str) -> List[PlaylistInfo]:
 @router.post("/update/{playlist_id}", tags=["playlists"])
 async def update_playlist(playlist_info: PlaylistInfo, playlist_content: PlaylistContent):
     service = ServiceFactory.get_service("PlaylistResource")
-    service.update_playlist(playlist_info, playlist_content)
+    result = service.update_playlist(playlist_info, playlist_content)
+    if result.get("status") == "success":
+        return {"message": result.get("message")}
+    else:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=result.get("message", "Failed to update playlist.")
+        )
 
 @router.delete("/{playlist_id}", tags=["playlists"])
 async def delete_playlist(playlist_id: str):
