@@ -49,7 +49,7 @@ class PlaylistResource(BaseResource):
             result = PlaylistInfo(**result)
         return result
 
-    def get_playlists(self, user_id: str):
+    def get_playlists(self, user_id: str) -> List[PlaylistInfo]:
         d_service = self.data_service
         result = d_service.get_data_object(
             self.database, self.info_collection, key_field="user_id", key_value=user_id,
@@ -91,8 +91,17 @@ class PlaylistResource(BaseResource):
                     return {"status": "success",
                             "message": f"Playlist {playlist_info.playlist_id} exists, no content to update."}
 
+
+                key_fields = ["playlist_id", "track_id"]
+                key_values = [playlist_content.playlist_id, playlist_content.track_id]
+                if_existed = d_service.get_data_object_with_multiple_keys(
+                    self.database, self.content_collection, key_fields=key_fields, key_values=key_values,
+                )
+                if if_existed:
+                    return {"status": "error",
+                            "message": f"Playlist content {playlist_content.track_id} already exists."}
+
                 content_data = playlist_content.model_dump()
-                # TODO: check if the content already exists, by using playlist_id and track_id
                 add_content = d_service.add_data_object(
                     self.database,
                     self.content_collection,

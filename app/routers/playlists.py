@@ -45,6 +45,9 @@ async def update_playlist(playlist_info: PlaylistInfo, playlist_content: Playlis
 @router.delete("/{playlist_id}", tags=["playlists"])
 async def delete_playlist(playlist_id: str):
     service = ServiceFactory.get_service("PlaylistResource")
+    if service.get_playlist(playlist_id) is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Playlist not found")
+
     result = service.delete_playlist(playlist_id)
     if result.get("status") == "success":
         return {"message": result.get("message")}
@@ -67,12 +70,12 @@ async def delete_song(playlist_id: str, track_id: str):
         )
 
 
-@router.post("/branch/{playlist_id}/{branch_id}", tags=["playlists"])
-async def create_branch(playlist_id: str, branch_id: str):
-    service = ServiceFactory.get_service("PlaylistResource")
-    service.create_branch(playlist_id, branch_id)
-
-@router.post("/playlist/{playlist_id}/branch/{branch_id}", tags=["playlists"])
-async def set_branch(branch_id: str):
-    service = ServiceFactory.get_service("PlaylistResource")
-    service.set_branch(branch_id)
+# @router.post("/branch/{playlist_id}/{branch_id}", tags=["playlists"])
+# async def create_branch(playlist_id: str, branch_id: str):
+#     service = ServiceFactory.get_service("PlaylistResource")
+#     service.create_branch(playlist_id, branch_id)
+#
+# @router.post("/playlist/{playlist_id}/branch/{branch_id}", tags=["playlists"])
+# async def set_branch(branch_id: str):
+#     service = ServiceFactory.get_service("PlaylistResource")
+#     service.set_branch(branch_id)

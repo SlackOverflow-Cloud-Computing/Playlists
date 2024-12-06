@@ -1,4 +1,5 @@
 import pymysql
+from typing import List
 from pymysql import connect
 
 from .BaseDataService import DataDataService
@@ -62,6 +63,33 @@ class MySQLRDBDataService(DataDataService):
                 connection.close()
 
         return result
+
+    def get_data_object_with_multiple_keys(self,
+                                           database_name: str,
+                                           collection_name: str,
+                                           key_fields: List[str],
+                                           key_values: List[str],
+    ):
+        connection = None
+        success = False
+
+        try:
+            conditions = " AND ".join([f"{field}=%s" for field in key_fields])
+            sql_statement = f"SELECT * FROM {database_name}.{collection_name} WHERE {conditions}"
+            connection = self._get_connection()
+            cursor = connection.cursor()
+            cursor.execute(sql_statement, key_values)
+            if cursor.rowcount > 0:
+                success = True
+        except Exception as e:
+            print(f"Error fetching data object with multiple keys: {e}")
+            return None
+        finally:
+            if connection:
+                connection.close()
+        return success
+
+
 
     def delete_data_object(self,
                            database_name: str,
