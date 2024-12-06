@@ -2,6 +2,7 @@ from turtledemo.sorting_animate import enable_keys
 from typing import Any, List
 
 from pyexpat.errors import messages
+from requests import delete
 
 from framework.resources.base_resource import BaseResource
 
@@ -119,10 +120,17 @@ class PlaylistResource(BaseResource):
         else:
             return {"status": "error", "message": f"Failed to delete playlist {playlist_id} or its content."}
 
-    # TODO: delete the song from the content table
     def delete_song(self, playlist_id: str, track_id: str):
-        pass
-
+        d_service = self.data_service
+        key_fields = ["playlist_id", "track_id"]
+        key_values = [playlist_id, track_id]
+        delete_info = d_service.delete_data_object_with_multiple_keys(
+            self.database, self.content_collection, key_fields=key_fields, key_values=key_values
+        )
+        if delete_info:
+            return {"status": "success", "message": f"The song {track_id} in Playlist {playlist_id} has been deleted."}
+        else:
+            return {"status": "error", "message": f"Failed to delete song {track_id}."}
 
     def create_branch(self, playlist_id: str, branch_id: str):
         pass

@@ -54,6 +54,19 @@ async def delete_playlist(playlist_id: str):
             detail=result.get("message", "Failed to delete playlist.")
         )
 
+@router.delete("/{playlist_id}/{track_id}", tags=["playlists"])
+async def delete_song(playlist_id: str, track_id: str):
+    service = ServiceFactory.get_service("PlaylistResource")
+    result = service.delete_song(playlist_id, track_id)
+    if result.get("status") == "success":
+        return {"message": result.get("message")}
+    else:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=result.get("message", "Failed to delete song.")
+        )
+
+
 @router.post("/branch/{playlist_id}/{branch_id}", tags=["playlists"])
 async def create_branch(playlist_id: str, branch_id: str):
     service = ServiceFactory.get_service("PlaylistResource")
