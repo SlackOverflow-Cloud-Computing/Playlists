@@ -1,47 +1,86 @@
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.security import OAuth2PasswordBearer
+from fastapi import APIRouter, status, HTTPException
 from pydantic import BaseModel
 
-from app.models.user import User
-from app.models.playlist import Playlist
+from app.models.playlist_content import PlaylistContent
+from app.models.playlist_info import PlaylistInfo
 from app.services.service_factory import ServiceFactory
 import dotenv, os
+
+from typing import List
 
 dotenv.load_dotenv()
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 router = APIRouter()
 
 @router.get("/playlists/{playlist_id}", tags=["playlists"])
-async def get_playlist(playlist_id: str, token: str = Depends(oauth2_scheme)) -> Playlist:
-    service = ServiceFactory.get_service("Playlist")
+async def get_playlist(playlist_id: str, token: str = Depends(oauth2_scheme)) -> PlaylistInfo:
+    service = ServiceFactory.get_service("PlaylistResource")
     if not service.validate_token(token, scope=("/playlists/{playlist_id}", "GET")):
         raise HTTPException(status_code=401, detail="Invalid Token")
 
-    return service.get_playlist(playlist_id)
+    playlist = service.get_playlist(playlist_id)
+    if playlist is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Playlist not found")
+    return playlist
 
 
-@router.post("/playlist/{playlist_id}", tags=["playlists"])
-async def update_playlist(playlist: Playlist, token: str = Depends(oauth2_scheme)):
-    service = ServiceFactory.get_service("Playlist")
-    if not service.validate_token(token, scope=("/playlist/{playlist_id}", "POST")):
+@router.post("/playlists/{playlist_id}", tags=["playlists"])
+async def update_playlist(playlist_info: PlaylistInfo, playlist_content: PlaylistContent, token: str = Depends(oauth2_scheme)):
+    service = ServiceFactory.get_service("PlaylistResource")
+    if not service.validate_token(token, scope=("/playlists/{playlist_id}", "POST")):
         raise HTTPException(status_code=401, detail="Invalid Token")
 
-    service.update_playlist(playlist)
+    result = service.update_playlist(playlist_info, playlist_content)
+    if result.get("status") == "success":
+        return {"message": result.get("message")}
+    else:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=result.get("message", "Failed to update playlist.")
+        )
 
 
-@router.delete("/playlist/{playlist_id}", tags=["playlists"])
-async def delete_playlist(playlist_id: str):
-    service = ServiceFactory.get_service("Playlist")
-    if not service.validate_token(token, scope=("/playlist/{playlist_id}", "DELETE")):
+@router.delete("/playlists/{playlist_id}", tags=["playlists"])
+async def delete_playlist(playlist_id: str, token: str = Depends(oauth2_scheme)):
+    service = ServiceFactory.get_service("PlaylistResource")
+    if not service.validate_token(token, scope=("/playlists/{playlist_id}", "DELETE")):
         raise HTTPException(status_code=401, detail="Invalid Token")
 
-    service.delete_playlist(playlist_id)
+    if service.get_playlist(playlist_id) is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Playlist not found")
+
+    result = service.delete_playlist(playlist_id)
+    if result.get("status") == "success":
+        return {"message": result.get("message")}
+    else:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=result.get("message", "Failed to delete playlist.")
+        )
 
 
-@router.get("/playlists/{user_id}", tags=["playlists"])
-async def get_playlists(user_id: str) -> List[Playlist]:
-    service = ServiceFactory.get_service("Playlist")
+@router.get("/users/{user_id}/playlists", tags=["playlists"])
+async def get_user_playlists(user_id: str, token: str = Depends(oauth2_scheme)) -> List[PlaylistInfo]:
+    service = ServiceFactory.get_service("PlaylistResource")
     if not service.validate_token(token, scope=("/playlists/{user_id}", "GET")):
         raise HTTPException(status_code=401, detail="Invalid Token")
 
     return service.get_playlists(user_id)
+
+
+@router.delete("/playlists/{playlist_id}/{track_id}", tags=["playlists"])
+async def delete_song(playlist_id: str, track_id: str, token: str = Depends(oauth2_scheme)):
+    service = ServiceFactory.get_service("PlaylistResource")
+    if not service.validate_token(token, scope=("/playlists/{playlist_id}/{track_id}", "DELETE")):
+        raise HTTPException(status_code=401, detail="Invalid Token")
+
+    result = service.delete_song(playlist_id, track_id)
+    if result.get("status") == "success":
+        return {"message": result.get("message")}
+    else:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=result.get("message", "Failed to delete song.")
+        )
