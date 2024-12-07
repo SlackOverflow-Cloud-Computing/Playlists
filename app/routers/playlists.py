@@ -42,7 +42,7 @@ async def update_playlist(playlist_info: PlaylistInfo, playlist_content: Playlis
             detail=result.get("message", "Failed to update playlist.")
         )
 
-@router.delete("/{playlist_id}", tags=["playlists"])
+@router.delete("/playlists/{playlist_id}", tags=["playlists"])
 async def delete_playlist(playlist_id: str):
     service = ServiceFactory.get_service("PlaylistResource")
     if service.get_playlist(playlist_id) is None:
@@ -57,7 +57,7 @@ async def delete_playlist(playlist_id: str):
             detail=result.get("message", "Failed to delete playlist.")
         )
 
-@router.delete("/{playlist_id}/{track_id}", tags=["playlists"])
+@router.delete("/playlists/{playlist_id}/{track_id}", tags=["playlists"])
 async def delete_song(playlist_id: str, track_id: str):
     service = ServiceFactory.get_service("PlaylistResource")
     result = service.delete_song(playlist_id, track_id)

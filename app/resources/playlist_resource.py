@@ -98,7 +98,7 @@ class PlaylistResource(BaseResource):
                     self.database, self.content_collection, key_fields=key_fields, key_values=key_values,
                 )
                 if if_existed:
-                    return {"status": "error",
+                    return {"status": "success",
                             "message": f"Playlist content {playlist_content.track_id} already exists."}
 
                 content_data = playlist_content.model_dump()
@@ -117,6 +117,9 @@ class PlaylistResource(BaseResource):
 
     def delete_playlist(self, playlist_id: str):
         d_service = self.data_service
+        if_content_existed = d_service.get_data_object(
+            self.database, self.content_collection, key_field=self.content_key_field, key_value=playlist_id,
+        )
         delete_content = d_service.delete_data_object(
             self.database, self.content_collection, key_field=self.content_key_field, key_value=playlist_id
         )
@@ -126,6 +129,8 @@ class PlaylistResource(BaseResource):
 
         if delete_info and delete_content:
             return {"status": "success", "message": f"Playlist {playlist_id} and its content have been deleted."}
+        elif delete_info and not delete_content and not if_content_existed:
+            return {"status": "success", "message": f"Playlist {playlist_id} has been deleted but there's no content in the playlist."}
         else:
             return {"status": "error", "message": f"Failed to delete playlist {playlist_id} or its content."}
 
