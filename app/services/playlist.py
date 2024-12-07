@@ -1,6 +1,8 @@
+import os
 import requests
 import base64
 
+import jwt
 from fastapi import FastAPI, HTTPException, Request
 from pydantic import ValidationError
 
@@ -8,11 +10,28 @@ from app.models.user import User
 from app.models.token import Token
 
 
-class SpotifyAPIService:
+JWT_SECRET = os.getenv('JWT_SECRET')
+ALGORITHM = "HS256"
+
+
+class PlaylistService:
 
     def __init__(self, client_id, client_secret):
         self.client_id = client_id
         self.client_secret = client_secret
+
+
+    def validate_token(self, token: Token, scope: tuple[str, str]) -> bool:
+        """Checks if the token is valid for the given scope"""
+        try:
+            payload = jwt.decode(token.access_token, JWT_SECRET, algorithms=[ALGORITHM])
+            if scope[1] not in payload.get("scopes").get(scope[0]):
+                return False
+            else:
+                return True
+
+        except jwt.exceptions.InvalidTokenError:
+            return False
 
 
     def login(self, auth_code, redirect_uri) -> Token:
