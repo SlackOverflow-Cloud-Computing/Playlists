@@ -1,3 +1,5 @@
+import logging
+
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.security import OAuth2PasswordBearer
 from fastapi import APIRouter, status, HTTPException
@@ -12,10 +14,13 @@ from typing import List
 
 dotenv.load_dotenv()
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
+
+logger = logging.getLogger("uvicorn")
 router = APIRouter()
 
 @router.get("/playlists/{playlist_id}", tags=["playlists"])
 async def get_playlist(playlist_id: str, token: str = Depends(oauth2_scheme)) -> PlaylistInfo:
+    logger.info(f"Incoming Request - Method: GET, Path: /playlists/{playlist_id}")
     service = ServiceFactory.get_service("PlaylistResource")
     if not service.validate_token(token, scope=("/playlists/{playlist_id}", "GET")):
         raise HTTPException(status_code=401, detail="Invalid Token")
@@ -28,6 +33,7 @@ async def get_playlist(playlist_id: str, token: str = Depends(oauth2_scheme)) ->
 
 @router.post("/playlists/{playlist_id}", tags=["playlists"])
 async def update_playlist(playlist_info: PlaylistInfo, playlist_content: PlaylistContent, token: str = Depends(oauth2_scheme)):
+    logger.info(f"Incoming Request - Method: POST, Path: /playlist/{playlist_info.playlist_id}")
     service = ServiceFactory.get_service("PlaylistResource")
     if not service.validate_token(token, scope=("/playlists/{playlist_id}", "POST")):
         raise HTTPException(status_code=401, detail="Invalid Token")
@@ -44,6 +50,7 @@ async def update_playlist(playlist_info: PlaylistInfo, playlist_content: Playlis
 
 @router.delete("/playlists/{playlist_id}", tags=["playlists"])
 async def delete_playlist(playlist_id: str, token: str = Depends(oauth2_scheme)):
+    logger.info(f"Incoming Request - Method: DELETE, Path: /playlist/{playlist_id}")
     service = ServiceFactory.get_service("PlaylistResource")
     if not service.validate_token(token, scope=("/playlists/{playlist_id}", "DELETE")):
         raise HTTPException(status_code=401, detail="Invalid Token")
@@ -63,6 +70,7 @@ async def delete_playlist(playlist_id: str, token: str = Depends(oauth2_scheme))
 
 @router.get("/users/{user_id}/playlists", tags=["playlists"])
 async def get_user_playlists(user_id: str, token: str = Depends(oauth2_scheme)) -> List[PlaylistInfo]:
+    logger.info(f"Incoming Request - Method: GET, Path: /playlists/{user_id}")
     service = ServiceFactory.get_service("PlaylistResource")
     if not service.validate_token(token, scope=("/playlists/{user_id}", "GET")):
         raise HTTPException(status_code=401, detail="Invalid Token")
@@ -72,6 +80,8 @@ async def get_user_playlists(user_id: str, token: str = Depends(oauth2_scheme)) 
 
 @router.delete("/playlists/{playlist_id}/tracks/{track_id}", tags=["playlists"])
 async def delete_song(playlist_id: str, track_id: str, token: str = Depends(oauth2_scheme)):
+    logger.info(f"Incoming Request - Method: DELETE, Path: /playlist/{playlist_id}")
+
     service = ServiceFactory.get_service("PlaylistResource")
     if not service.validate_token(token, scope=("/playlists/{playlist_id}/{track_id}", "DELETE")):
         raise HTTPException(status_code=401, detail="Invalid Token")
