@@ -70,7 +70,7 @@ async def get_user_playlists(user_id: str, token: str = Depends(oauth2_scheme)) 
     return service.get_playlists(user_id)
 
 
-@router.delete("/playlists/{playlist_id}/{track_id}", tags=["playlists"])
+@router.delete("/playlists/{playlist_id}/tracks/{track_id}", tags=["playlists"])
 async def delete_song(playlist_id: str, track_id: str, token: str = Depends(oauth2_scheme)):
     service = ServiceFactory.get_service("PlaylistResource")
     if not service.validate_token(token, scope=("/playlists/{playlist_id}/{track_id}", "DELETE")):
