@@ -15,6 +15,19 @@ from typing import List
 dotenv.load_dotenv()
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
+log_dir = "C:\\var\\log"
+os.makedirs(log_dir, exist_ok=True)
+
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s - %(levelname)s - %(message)s",
+    handlers=[
+        logging.FileHandler(os.path.join(log_dir, "playlists.log")),  # Log file
+        logging.StreamHandler()  # Also log to the console
+    ]
+)
+
 logger = logging.getLogger("uvicorn")
 router = APIRouter()
 
