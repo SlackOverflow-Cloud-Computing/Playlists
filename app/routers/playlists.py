@@ -15,7 +15,7 @@ from typing import List
 dotenv.load_dotenv()
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
-log_dir = "C:\\var\\log"
+log_dir = "/var/log"
 os.makedirs(log_dir, exist_ok=True)
 
 # Configure logging
