@@ -5,11 +5,12 @@ import base64
 import jwt
 from fastapi import FastAPI, HTTPException, Request
 from pydantic import ValidationError
+import dotenv
 
 from app.models.user import User
 from app.models.token import Token
 
-
+dotenv.load_dotenv()
 JWT_SECRET = os.getenv('JWT_SECRET')
 ALGORITHM = "HS256"
 

@@ -11,11 +11,10 @@ from framework.resources.base_resource import BaseResource
 from app.models.playlist_content import PlaylistContent
 from app.models.playlist_info import PlaylistInfo
 
-
+dotenv.load_dotenv()
 JWT_SECRET = os.getenv('JWT_SECRET')
 ALGORITHM = "HS256"
 
-dotenv.load_dotenv()
 db = os.getenv('DB_NAME')
 info_collection = os.getenv('DB_INFO_COLLECTION')
 content_collection = os.getenv('DB_CONTENT_COLLECTION')
