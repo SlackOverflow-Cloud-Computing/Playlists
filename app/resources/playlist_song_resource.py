@@ -104,10 +104,10 @@ class Query(ObjectType):
 
 
 # FastAPI application integration
-from fastapi import FastAPI
-from starlette_graphene3 import GraphQLApp
-from graphene import Schema
-
-app = FastAPI()
-schema = Schema(query=Query)
-app.add_route("/graphql", GraphQLApp(schema=schema))
+# from fastapi import FastAPI
+# from starlette_graphene3 import GraphQLApp
+# from graphene import Schema
+#
+# app = FastAPI()
+# schema = Schema(query=Query)
+# app.add_route("/graphql", GraphQLApp(schema=schema))

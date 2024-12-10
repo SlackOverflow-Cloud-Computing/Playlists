@@ -7,6 +7,8 @@ from pydantic import BaseModel
 
 from app.models.playlist_content import PlaylistContent
 from app.models.playlist_info import PlaylistInfo
+from app.models.song import Song
+from app.resources.playlist_song_resource import Query
 from app.services.service_factory import ServiceFactory
 import dotenv, os
 
@@ -94,3 +96,23 @@ async def delete_song(playlist_id: str, track_id: str, token: str = Depends(oaut
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=result.get("message", "Failed to delete song.")
         )
+
+
+@router.get("/playlists/{playlist_id}/tracks", tags=["playlists"])
+async def get_playlist_tracks(playlist_id: str, token: str = Depends(oauth2_scheme)) -> List[Song]:
+    logger.info(f"Incoming Request - Method: GET, Path: /playlists/{playlist_id}/tracks")
+    service = ServiceFactory.get_service("PlaylistResource")
+    # Validate token
+    if not service.validate_token(token, scope=("/playlists/{playlist_id}/tracks", "GET")):
+        raise HTTPException(status_code=401, detail="Invalid Token")
+
+    # Use graphQL resolve_tracks_by_playlist logic
+    try:
+        query = Query()
+        tracks = query.resolve_tracks_by_playlist(info=None, playlist_id=playlist_id)
+        if not tracks:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Tracks not found for this playlist")
+        return tracks
+    except Exception as e:
+        logger.error(f"Error fetching tracks for playlist {playlist_id}: {e}")
+        raise HTTPException(status_code=500, detail="Internal Server Error")
