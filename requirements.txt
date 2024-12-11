@@ -21,4 +21,3 @@ PyJWT==2.9.0
 sqlalchemy==1.4.54
 graphene==2.1.9
 graphene_sqlalchemy==2.3.0
-starlette_graphene3==0.6.0
